@@ -11,6 +11,56 @@
 // Ngăn chặn truy cập trực tiếp
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
+
+// 1. Tự động nhận diện SLUG chuẩn của plugin (Ví dụ: my-plugin/my-plugin.php)
+if ( ! defined( 'MY_PLUGIN_SLUG' ) ) {
+    define( 'MY_PLUGIN_SLUG', plugin_basename( __FILE__ ) );
+}
+
+define( 'MY_PLUGIN_VERSION', '5.0.9' ); 
+define( 'MY_PLUGIN_UPDATE_URL', 'http://localhost/dev/plugins/my-custom-plugin/info.json' ); // Hãy check lại link này xem đúng chưa nhé
+
+// 2. Đăng ký hook ở cấp độ cao nhất (Global)
+add_filter( 'site_transient_update_plugins', 'my_plugin_force_check_update', 999 );
+
+function my_plugin_force_check_update( $transient ) {
+    // Ép log xuất hiện để chắc chắn hook này CÓ CHẠY
+
+    if ( ! is_object( $transient ) ) {
+        $transient = new stdClass();
+    }
+    if ( ! isset( $transient->response ) ) {
+        $transient->response = array();
+    }
+
+    $response = wp_remote_get( MY_PLUGIN_UPDATE_URL, array( 'timeout' => 10 ) );
+    
+    if ( is_wp_error( $response ) ) {
+        error_log( 'WP Update URL Lỗi: ' . $response->get_error_message() );
+        return $transient;
+    }
+    
+    $body = wp_remote_retrieve_body( $response );
+
+    $remote_info = json_decode( $body );
+
+    if ( $remote_info && version_compare( MY_PLUGIN_VERSION, $remote_info->version, '<' ) ) {
+        $obj = new stdClass();
+        $obj->slug = $remote_info->slug;
+        $obj->new_version = $remote_info->version;
+        $obj->url = $remote_info->download_url;
+        $obj->package = $remote_info->download_url;
+
+        // Ghi đè chính xác vào slug động
+        $transient->response[ MY_PLUGIN_SLUG ] = $obj;
+        
+    }
+
+    return $transient;
+}
+
+// end update plugin
+
 define( 'DUAN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DUAN_URL', plugin_dir_url( __FILE__ ) );
 
