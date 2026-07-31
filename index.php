@@ -31,7 +31,7 @@ function check_my_plugin_update($transient) {
     $remote_info = json_decode(wp_remote_retrieve_body($response));
     
     // Version hiện tại của plugin dưới local
-    $current_version = '1.0.0'; // Thay bằng version thực tế hoặc defined constant
+    $current_version = '1.0.1'; // Thay bằng version thực tế hoặc defined constant
 
     // So sánh phiên bản
     if ($remote_info && version_compare($current_version, $remote_info->version, '<')) {
