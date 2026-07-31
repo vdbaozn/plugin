@@ -1,0 +1,10 @@
+{
+    "name": "Dự án",
+    "slug": "congty",
+    "version": "5.1.0",
+    "download_url": "http://localhost/dev/plugins/my-custom-plugin.zip",
+    "sections": {
+        "description": "Đây là phiên bản mới với nhiều tính năng nâng cao và sửa lỗi bảo mật.",
+        "changelog": "<ul><li>Sửa lỗi giao diện</li><li>Nâng cấp hiệu năng</li></ul>"
+    }
+}
