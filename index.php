@@ -18,7 +18,7 @@ if ( ! defined( 'MY_PLUGIN_SLUG' ) ) {
 }
 
 define( 'MY_PLUGIN_VERSION', '5.0.9' ); 
-define( 'MY_PLUGIN_UPDATE_URL', 'https://raw.githubusercontent.com/vdbaozn/plugin/main/info.json' ); // Hãy check lại link này xem đúng chưa nhé
+define( 'MY_PLUGIN_UPDATE_URL', 'http://localhost/dev/plugins/my-custom-plugin/info.json' ); // Hãy check lại link này xem đúng chưa nhé
 
 // 2. Đăng ký hook ở cấp độ cao nhất (Global)
 add_filter( 'site_transient_update_plugins', 'my_plugin_force_check_update', 999 );
