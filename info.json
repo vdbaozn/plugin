@@ -1,7 +1,7 @@
 {
     "name": "Dự án",
     "slug": "congty",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "download_url": "https://github.com/vdbaozn/plugin/raw/main/duan.zip",
     "sections": {
         "description": "Đây là phiên bản mới với nhiều tính năng nâng cao và sửa lỗi bảo mật.",
