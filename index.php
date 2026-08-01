@@ -154,7 +154,7 @@ add_action('admin_menu', 'my_custom_admin_menu');
 function my_congty_page_callback() {
     ?>
     <div class="wrap">
-        <h1>Danh sách công ty 33</h1>
+        <h1>Danh sách công ty</h1>
     </div>
     <?php
     require_once DUAN_PATH . 'views/my-page.php';
