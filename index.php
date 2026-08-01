@@ -3,7 +3,7 @@
  * Plugin Name: Dự án
  * Plugin URI:  https://domain-cua-ban.com/my-first-plugin
  * Description: Đây là plugin đầu tiên của tôi giúp hiển thị một dòng thông báo.
- * Version:     1.0.5
+ * Version:     1.0.6
  * Author:      Võ Duy Bảo
  * Author URI:  https://domain-cua-ban.com
  * License:     Vdbao
@@ -154,7 +154,7 @@ add_action('admin_menu', 'my_custom_admin_menu');
 function my_congty_page_callback() {
     ?>
     <div class="wrap">
-        <h1>Danh sách công ty</h1>
+        <h1>Danh sách công ty 2</h1>
     </div>
     <?php
     require_once DUAN_PATH . 'views/my-page.php';
