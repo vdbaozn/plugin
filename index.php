@@ -3,7 +3,7 @@
  * Plugin Name: Dự án
  * Plugin URI:  https://domain-cua-ban.com/my-first-plugin
  * Description: Đây là plugin đầu tiên của tôi giúp hiển thị một dòng thông báo.
- * Version:     1.0.3
+ * Version:     1.0.4
  * Author:      Võ Duy Bảo
  * Author URI:  https://domain-cua-ban.com
  * License:     Vdbao
