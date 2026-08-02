@@ -3,8 +3,8 @@
     <li><a href="<?php echo get_bloginfo('url') ?>/wp-admin/admin.php?page=congty&action=add">Thêm</a></li>
 </ul><?php 
 global $wpdb;
-$table_project = $wpdb->prefix . 'project';
-$table_company = $wpdb->prefix . 'company';
+$table_project = $wpdb->prefix . 'wm_project';
+$table_company = $wpdb->prefix . 'wm_company';
 $table_baocao = $wpdb->prefix . 'baocao';
 $action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : '';
 
@@ -12,16 +12,14 @@ $action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : ''
 if($action=='add'){
     if(isset($_POST['save'])){
         $in_name = $_POST['in_name'];
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'company';
         $data = array(
-            'company_name'       => $in_name
+            'wm_cp_name'       => $in_name
         );
 
         $format = array(
             '%s', // name là chuỗi
         );
-        $result = $wpdb->insert( $table_name, $data, $format );
+        $result = $wpdb->insert( $table_company, $data, $format );
         if ( false === $result ) {
             // exit;
             // Lỗi khi thêm dữ liệu
@@ -52,9 +50,8 @@ if($action=='add'){
 
     if(isset($_POST['save'])){
         $in_name = $_POST['in_name'];
-        global $wpdb;
         $data = array(
-            'company_name'       => $in_name
+            'wm_cp_name'       => $in_name
         );
 
         $where = array(
@@ -90,7 +87,7 @@ if($action=='add'){
     <form action="#" method="post">
         <table>
             <tr>
-                <td><input type="text" name="in_name" value="<?php echo $congty->company_name;?>"></td>
+                <td><input type="text" name="in_name" value="<?php echo $congty->wm_cp_name;?>"></td>
                 <td><button type="submit" name="save" value="save">Lưu</button></td>
             </tr>
         </table>
@@ -139,7 +136,7 @@ else{
         foreach($project_list as $item){
             $i++;
             echo '<tr>
-            <td>'.$i.'</td><td>【'.$item->company_name.'】</td><td><a href="'.admin_url( 'admin.php?page=congty&action=edit&id='.$item->id ).'">Edit</a> - <a href="'.admin_url( 'admin.php?page=congty&action=del&id='.$item->id ).'">Del</a></td>
+            <td>'.$i.'</td><td>【'.$item->wm_cp_name.'】</td><td><a href="'.admin_url( 'admin.php?page=congty&action=edit&id='.$item->id ).'">Edit</a> - <a href="'.admin_url( 'admin.php?page=congty&action=del&id='.$item->id ).'">Del</a></td>
         </tr>';
         }
         ?>

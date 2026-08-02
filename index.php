@@ -87,9 +87,57 @@ define( 'DUAN_URL', plugin_dir_url( __FILE__ ) );
 
 register_activation_hook( __FILE__, 'my_plugin_update_db_structure' );
 
+
+
 function my_plugin_update_db_structure() {
     global $wpdb;
-    $table_project = $wpdb->prefix . 'project';
+    $table_project = $wpdb->prefix . 'wm_project';
+    $table_baocao = $wpdb->prefix . 'baocao'; 
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "ALTER TABLE `{$table_project}` ADD `project_sku` VARCHAR(100) NOT NULL ;";
+    $wpdb->query( $sql );
+
+    $sql = "ALTER TABLE `{$table_project}` ADD `project_urltest` VARCHAR(100) NOT NULL ;";
+    $wpdb->query( $sql );
+    $sql = "ALTER TABLE `{$table_project}` ADD `project_user` VARCHAR(100) NOT NULL ;";
+    $wpdb->query( $sql );
+    $sql = "ALTER TABLE `{$table_project}` ADD `project_pass` VARCHAR(100) NOT NULL ;";
+    $wpdb->query( $sql );
+    $sql = "ALTER TABLE `{$table_project}` ADD `project_urlhost` VARCHAR(100) NOT NULL ;";
+    $wpdb->query( $sql );
+
+    $sql = "CREATE TABLE $table_baocao (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        id_project int(11) NOT NULL,
+        bc_content longtext NOT NULL,
+        bc_option int(11) NOT NULL,
+        bc_date varchar(20) NOT NULL,
+        PRIMARY KEY  (id),
+        KEY fk_baocao_project (id_project)
+    ) $charset_collate;";
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+
+    $fk_name = 'fk_baocao_project';
+    $check_fk = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT CONSTRAINT_NAME 
+             FROM information_schema.TABLE_CONSTRAINTS 
+             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND CONSTRAINT_NAME = %s",
+            DB_NAME, $table_baocao, $fk_name
+        )
+    );
+
+    if ( empty( $check_fk ) ) {
+        $wpdb->query(
+            "ALTER TABLE $table_baocao 
+             ADD CONSTRAINT $fk_name 
+             FOREIGN KEY (id_project) REFERENCES $parent_table (id) 
+             ON DELETE CASCADE ON UPDATE CASCADE;"
+        );
+    }
+    // $wpdb->query( $sql );
 
     // 2. Kiểm tra xem cột 'project_urltest' đã có trong bảng chưa
     $column_exists = $wpdb->get_results( 
@@ -100,16 +148,17 @@ function my_plugin_update_db_structure() {
     );
 
     // 3. Nếu CHƯA CÓ thì mới tiến hành chèn các cột mới vào
-    if ( empty( $column_exists ) ) {
+    // if ( empty( $column_exists ) ) {
         // Gộp cả 4 cột vào 1 truy vấn ALTER TABLE duy nhất
         $sql = "ALTER TABLE `{$table_project}` 
                 ADD `project_urltest` VARCHAR(100) NOT NULL AFTER `project_sku`,
                 ADD `project_user` VARCHAR(100) NOT NULL AFTER `project_urltest`,
                 ADD `project_pass` VARCHAR(100) NOT NULL AFTER `project_user`,
+                ADD `project_sku` VARCHAR(100) NOT NULL AFTER `project_sku`,
                 ADD `project_urlhost` VARCHAR(100) NOT NULL AFTER `project_pass`;";
 
         $wpdb->query( $sql );
-    }
+    // }
 }
 
 add_action('admin_head', 'my_admin_custom_css');
@@ -216,8 +265,8 @@ function my_backup_page_callback(){ ?>
 function handle_get_project_info_ajax() {
     global $wpdb;
 
-    $table_project = $wpdb->prefix . 'project'; 
-    $table_company = $wpdb->prefix . 'company';
+    $table_project = $wpdb->prefix . 'wm_project'; 
+    $table_company = $wpdb->prefix . 'wm_company';
     
     // 1. Lấy dữ liệu gửi sang và Sanitize
     $code = isset( $_POST['code'] ) ? sanitize_text_field( $_POST['code'] ) : '';
@@ -231,13 +280,13 @@ function handle_get_project_info_ajax() {
     
     // Tìm thông tin theo project_code (sử dụng get_row như bài trước)
     $project = $wpdb->get_row( 
-        $wpdb->prepare( "SELECT * FROM $table_project a, $table_company b WHERE a.id_company = b.id AND project_code = %s", $code ) 
+        $wpdb->prepare( "SELECT * FROM $table_project a, $table_company b WHERE a.id_company = b.id AND wm_pj_code = %s", $code ) 
     );
 
     // 3. Phản hồi kết quả về JS dạng JSON
     if ( $project ) {
         // Trả về chuỗi HTML hoặc nội dung bạn muốn hiển thị vào <td class="val_project">
-        $output = '<strong>【'.$project->company_name.'】' . esc_html( $project->project_code ) . ' - '.$project->project_name.'</strong>';
+        $output = '<strong>【'.$project->wm_cp_name.'】' . esc_html( $project->wm_pj_code ) . ' - '.$project->wm_pj_name.'</strong>';
         wp_send_json_success( $output );
     } else {
         wp_send_json_error( 'Không tìm thấy thông tin dự án!' );
@@ -256,8 +305,8 @@ function handle_get_content_by_option() {
     $project_code = isset( $_POST['project_code'] ) ? sanitize_text_field( $_POST['project_code'] ) : '';
 
     global $wpdb;
-    $table_project = $wpdb->prefix . 'project';
-    $table_company = $wpdb->prefix . 'company';
+    $table_project = $wpdb->prefix . 'wm_project';
+    $table_company = $wpdb->prefix . 'wm_company';
     $table_baocao = $wpdb->prefix . 'baocao';
 
     if ( empty( $option ) ) {
@@ -265,13 +314,13 @@ function handle_get_content_by_option() {
     }
 
     // 2. Xử lý lấy nội dung $content theo từng option
-    // (Bạn có thể dùng switch/match hoặc query từ database)
-    // $html = 'お疲れ様です。';
-    // $info_product = $wpdb->get_var( 
-    //     $wpdb->prepare( "SELECT project_name FROM {$table_project} WHERE project_code = %s", $project_code ) 
+   
+    // $project = $wpdb->get_row( 
+    //     $wpdb->prepare( "SELECT a.wm_pj_name,a.wm_pj_code,a.project_urltest,a.project_urlhost,a.project_user,a.project_pass,b.wm_cp_name FROM $table_project a, $table_company b, $table_baocao c WHERE a.id_company = b.id AND c.id_project = a.id AND a.wm_pj_code = %s", $project_code ) 
     // );
+
     $project = $wpdb->get_row( 
-        $wpdb->prepare( "SELECT a.project_name,a.project_code,a.project_urltest,a.project_urlhost,a.project_user,a.project_pass,b.company_name FROM $table_project a, $table_company b, $table_baocao c WHERE a.id_company = b.id AND c.id_project = a.id AND a.project_code = %s", $project_code ) 
+        $wpdb->prepare( "SELECT a.wm_pj_name, a.wm_pj_code,a.project_urltest,a.project_urlhost,a.project_user,a.project_pass,b.wm_cp_name FROM $table_project a, $table_company b WHERE a.id_company = b.id AND a.wm_pj_code = %s", $project_code ) 
     );
 
     $url = $project->project_urltest;
@@ -283,8 +332,8 @@ function handle_get_content_by_option() {
         $urladmin = $url.'cms_login';
     }
 
-    $content = 'お疲れ様です。
-【'.$project->company_name.'】'.$project->project_code.' - '.$project->project_name.'のプロジェクトを送ります
+    $content =  'お疲れ様です。
+【'.$project->wm_cp_name.'】'.$project->wm_pj_code.' - '.$project->wm_pj_name.'のプロジェクトを送ります
 '.$url.'
 
 ';

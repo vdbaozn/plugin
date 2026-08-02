@@ -5,8 +5,8 @@
 <?php 
 
 global $wpdb;
-$table_project = $wpdb->prefix . 'project';
-$table_company = $wpdb->prefix . 'company';
+$table_project = $wpdb->prefix . 'wm_project';
+$table_company = $wpdb->prefix . 'wm_company';
 $table_baocao = $wpdb->prefix . 'baocao';
 $action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : '';
 if($action == 'add'){
@@ -17,7 +17,7 @@ if($action == 'add'){
         $in_option = $_POST['in_option'];
 
         $info_product = $wpdb->get_var( 
-            $wpdb->prepare( "SELECT id FROM {$table_project} WHERE project_code = %s", $in_project_code ) 
+            $wpdb->prepare( "SELECT id FROM {$table_project} WHERE wm_pj_code = %s", $in_project_code ) 
         );
 
         $data = array(
@@ -96,7 +96,7 @@ elseif($action=='edit'){
         $in_option = $_POST['in_option'];
 
         $info_product = $wpdb->get_var( 
-            $wpdb->prepare( "SELECT id FROM {$table_project} WHERE project_code = %s", $in_project_code ) 
+            $wpdb->prepare( "SELECT id FROM {$table_project} WHERE wm_pj_code = %s", $in_project_code ) 
         );
 
         $data = array(
@@ -142,7 +142,7 @@ elseif($action=='edit'){
         <tr>
             <td>
                 Project code<br>
-                <input type="text" class="val_code" name="in_project_code" value="<?php echo $project->project_code; ?>">
+                <input type="text" class="val_code" name="in_project_code" value="<?php echo $project->wm_pj_code; ?>">
             </td>
             <td>
                 <?php 
@@ -158,7 +158,7 @@ elseif($action=='edit'){
             </td>
         </tr>
         <tr>
-            <td class="val_project"><?php echo '【'.$project->company_name.'】'.$project->project_code.' - '.$project->project_name; ?></td>
+            <td class="val_project"><?php echo '【'.$project->wm_cp_name.'】'.$project->wm_pj_code.' - '.$project->wm_pj_name; ?></td>
         </tr>
         <tr>
             <td colspan="3">Content<br><textarea type="text" name="in_bc_content"><?php echo $content;?></textarea></td>
@@ -211,7 +211,7 @@ else{
         foreach($project_list as $item){
             $i++;
             echo '<tr>
-            <td>'.$i.'</td><td>【'.$item->company_name.'】'.$item->project_code.' - '.$item->project_name.'</td><td>'.$item->bc_date.'</td><td><a href="'.admin_url( 'admin.php?page=baocao&action=edit&id='.$item->id ).'">Edit</a> - <a href="'.admin_url( 'admin.php?page=baocao&action=del&id='.$item->id ).'">Del</a></td>
+            <td>'.$i.'</td><td>【'.$item->wm_cp_name.'】'.$item->wm_pj_code.' - '.$item->wm_pj_name.'</td><td>'.$item->bc_date.'</td><td><a href="'.admin_url( 'admin.php?page=baocao&action=edit&id='.$item->id ).'">Edit</a> - <a href="'.admin_url( 'admin.php?page=baocao&action=del&id='.$item->id ).'">Del</a></td>
         </tr>';
         }
         ?>

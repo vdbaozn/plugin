@@ -3,14 +3,18 @@
     <li><a href="<?php echo admin_url( 'admin.php?page=project&action=add' );?>">Thêm</a></li>
 </ul>
 <?php 
+global $wpdb;
+$table_project = $wpdb->prefix . 'wm_project';
+$table_company = $wpdb->prefix . 'wm_company';
+
 function get_company_list() {
     global $wpdb;
-
+$table_project = $wpdb->prefix . 'wm_project';
+$table_company = $wpdb->prefix . 'wm_company';
     // 1. Tên bảng
-    $table_name = $wpdb->prefix . 'company';
 
     // 2. Viết câu lệnh SQL lấy toàn bộ dữ liệu (sắp xếp theo ID giảm dần)
-    $query = "SELECT * FROM {$table_name} ORDER BY id DESC";
+    $query = "SELECT * FROM {$table_company} ORDER BY id DESC";
 
     // 3. Thực thi lấy dữ liệu dạng Object
     $results = $wpdb->get_results( $query );
@@ -22,9 +26,6 @@ function get_company_list() {
 
     return array(); // Trả về mảng rỗng nếu không có dữ liệu
 }
-global $wpdb;
-$table_project = $wpdb->prefix . 'project';
-$table_company = $wpdb->prefix . 'company';
 $action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : '';
 
 if($action == 'add'){
@@ -40,14 +41,14 @@ if($action == 'add'){
         
         $check_code = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table_project} WHERE project_code = %s",
+                "SELECT COUNT(*) FROM {$table_project} WHERE wm_pj_code = %s",
                 $in_project_code
             )
         );
         $data = array(
             'id_company'       => $in_company,
-            'project_code'       => $in_project_code,
-            'project_name'       => $in_project_name,
+            'wm_pj_code'       => $in_project_code,
+            'wm_pj_name'       => $in_project_name,
             'project_sku'       => $in_project_sku,
             'project_urltest'   => $in_project_urltest,
             'project_user'   => $in_project_user,
@@ -66,7 +67,7 @@ if($action == 'add'){
 
         if ( $check_code > 0 ) {
         // Thông báo nếu mã dự án đã tồn tại
-        echo '<div class="notice notice-error"><p>Mã dự án (project_code) này đã tồn tại. Vui lòng nhập mã khác!</p></div>';
+        echo '<div class="notice notice-error"><p>Mã dự án (wm_pj_code) này đã tồn tại. Vui lòng nhập mã khác!</p></div>';
     } else {
         $result = $wpdb->insert( $table_project, $data, $format );
         if ( false === $result ) {
@@ -89,7 +90,7 @@ if($action == 'add'){
             <td>Company<br>
                 <select name="in_company">
                     <?php foreach(get_company_list() as $item){
-                        echo '<option value="'.$item->id.'">'.$item->company_name.'</option>';
+                        echo '<option value="'.$item->id.'">'.$item->wm_cp_name.'</option>';
                     } ?>
                     
                 </select>
@@ -128,8 +129,8 @@ elseif($action=="edit"){
         $table_name = $wpdb->prefix . 'project';
         $data = array(
             'id_company'       => $in_company,
-            'project_code'       => $in_project_code,
-            'project_name'       => $in_project_name,
+            'wm_pj_code'       => $in_project_code,
+            'wm_pj_name'       => $in_project_name,
             'project_sku'       => $in_project_sku,
             'project_urltest'   => $in_project_urltest,
             'project_user'   => $in_project_user,
@@ -171,19 +172,24 @@ elseif($action=="edit"){
     <form action="#" method="post">
     <table>
         <tr>
-            <td>Company<br>
+            <td>Company <?php echo $project->id_company?><br>
                 <select name="in_company">
                     <?php foreach(get_company_list() as $item){
-                        echo '<option value="'.$item->id.'">'.$item->company_name.'</option>';
+                        if($item->id==$project->id_company){
+                            echo '<option selected value="'.$item->id.'">'.$item->wm_cp_name.'</option>';    
+                        }else{
+                            echo '<option value="'.$item->id.'">'.$item->wm_cp_name.'</option>';
+                        }
+                        
                     } ?>
                     
                 </select>
             </td>
             <td>
                 Project code<br>
-                <input type="text" name="in_project_code" value="<?php echo $project->project_code ?>">
+                <input type="text" name="in_project_code" value="<?php echo $project->wm_pj_code ?>">
             </td>
-            <td>Name<br><input type="text" name="in_project_name" value="<?php echo $project->project_name ?>"></td>
+            <td>Name<br><input type="text" name="in_project_name" value="<?php echo $project->wm_pj_name ?>"></td>
             <td>SKU<br><input type="text" name="in_project_sku" value="<?php echo $project->project_sku ?>"></td>
             
         </tr>
@@ -228,7 +234,8 @@ elseif($action=='del'){
     }
 }
 else{
-    $project_query = "SELECT a.id, a.project_code, a.project_name, a.project_sku, b.company_name FROM $table_project a, $table_company b WHERE b.id=a.id_company ORDER BY a.project_code DESC";
+    
+    $project_query = "SELECT a.id, a.wm_pj_code, a.project_sku,a.wm_pj_name, b.wm_cp_name FROM $table_project a, $table_company b WHERE b.id=a.id_company ORDER BY a.wm_pj_code DESC";
 
     // 3. Thực thi lấy dữ liệu dạng Object
     $project_list = $wpdb->get_results( $project_query );?>
@@ -240,8 +247,9 @@ else{
         $i=0;
         foreach($project_list as $item){
             $i++;
+            //
             echo '<tr>
-            <td>'.$i.'</td><td>【'.$item->company_name.'】'.$item->project_code.' - '.$item->project_name.'</td><td>'.$item->project_sku.'</td><td><a href="'.admin_url( 'admin.php?page=project&action=edit&id='.$item->id ).'">Edit</a> - <a href="'.admin_url( 'admin.php?page=project&action=del&id='.$item->id ).'">Del</a></td>
+            <td>'.$i.'</td><td>【'.$item->wm_cp_name.'】'.$item->wm_pj_code.' - '.$item->wm_pj_name.'</td><td>'.$item->project_sku.'</td><td><a href="'.admin_url( 'admin.php?page=project&action=edit&id='.$item->id ).'">Edit</a> - <a href="'.admin_url( 'admin.php?page=project&action=del&id='.$item->id ).'">Del</a></td>
         </tr>';
         }
         ?>
