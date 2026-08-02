@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Dự án
- * Plugin URI:  https://domain-cua-ban.com/my-first-plugin
+ * Plugin URI:  https://toilait.great-site.net/my-first-plugin
  * Description: Đây là plugin đầu tiên của tôi giúp hiển thị một dòng thông báo.
- * Version:     1.1.2
+ * Version:     1.1.3
  * Author:      Võ Duy Bảo
- * Author URI:  https://domain-cua-ban.com
+ * Author URI:  https://toilait.great-site.net/
  * License:     Vdbao
  */
 

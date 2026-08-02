@@ -67,7 +67,7 @@ if($action == 'add'){
 
         if ( $check_code > 0 ) {
         // Thông báo nếu mã dự án đã tồn tại
-        echo '<div class="notice notice-error"><p>Mã dự án (wm_pj_code) này đã tồn tại. Vui lòng nhập mã khác!</p></div>';
+        echo '<div class="notice notice-error"><p>Mã dự án ('.$in_project_code.') này đã tồn tại. Vui lòng nhập mã khác!</p></div>';
     } else {
         $result = $wpdb->insert( $table_project, $data, $format );
         if ( false === $result ) {
